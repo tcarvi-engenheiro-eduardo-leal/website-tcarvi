@@ -9,11 +9,15 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: '',
+    path: 'chat',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'l1',
     renderMode: RenderMode.Client
   },
   {
     path: '**',
-    renderMode: RenderMode.Server
+    renderMode: RenderMode.Prerender
   }
 ];

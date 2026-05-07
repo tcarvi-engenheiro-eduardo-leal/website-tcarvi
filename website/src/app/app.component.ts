@@ -7,14 +7,12 @@
  */
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AgentChatComponent } from './agent-chat/agent-chat.component';
 import { AgentService } from './agent.service';
 import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 't-root',
   imports: [
-    AgentChatComponent,
     RouterOutlet,
     MarkdownComponent
   ],

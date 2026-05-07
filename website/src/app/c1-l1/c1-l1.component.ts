@@ -1,7 +1,9 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 
 @Component({
   selector: 't-c1-l1',
@@ -9,10 +11,19 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   imports: [
     MatButtonModule,
     MatToolbarModule,
-    MatIconModule],
+    MatIconModule,
+  ],
   templateUrl: './c1-l1.component.html',
   styleUrl: './c1-l1.component.scss',
   encapsulation: ViewEncapsulation.Emulated
 })
 export class C1L1Component {
+  private dialog = inject(MatDialog);
+
+  openLoginDialog(): void {
+    this.dialog.open(LoginDialogComponent, {
+      width: '440px',
+      maxWidth: '95vw',
+    });
+  }
 }

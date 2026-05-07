@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../node_modules/genkit/lib/beta.mjs"],
+  "sourcesContent": ["import { InMemoryStreamManager, StreamNotFoundError } from \"@genkit-ai/core\";\nimport { AsyncTaskQueue, lazy } from \"@genkit-ai/core/async\";\nexport * from \"./common.js\";\nimport { GenkitBeta, genkit } from \"./genkit-beta.js\";\nexport { AsyncTaskQueue, GenkitBeta, InMemoryStreamManager, StreamNotFoundError, genkit, lazy };\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACA;AACA,yBAAc;AACd,yBAAmC;",
+  "names": []
+}

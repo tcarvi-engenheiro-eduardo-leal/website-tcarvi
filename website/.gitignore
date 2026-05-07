@@ -45,3 +45,5 @@ Thumbs.db
 # Genkit output
 .genkit/
 
+# OAuth2 credentials (never commit)
+src/environments/auth-credentials.ts

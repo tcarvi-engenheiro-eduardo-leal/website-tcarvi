@@ -24,6 +24,7 @@
     "@angular/platform-server": "^20.3.20",
     "@angular/router": "^20.3.20",
     "@angular/ssr": "^20.3.25",
+    "@azure/msal-browser": "^5.10.0",
     "@genkit-ai/express": "^1.33.0",
     "@genkit-ai/googleai": "^1.28.0",
     "data-urls": "^5.0.0",

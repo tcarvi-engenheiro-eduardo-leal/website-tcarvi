@@ -48,3 +48,6 @@ Thumbs.db
 # tcarvi
 website-old/
 website-old2/
+
+# OAuth2 credentials (never commit)
+.auth/

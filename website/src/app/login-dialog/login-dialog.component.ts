@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-login-dialog',
@@ -15,15 +16,17 @@ import { MatDialogModule } from '@angular/material/dialog';
   styleUrl: './login-dialog.component.scss',
 })
 export class LoginDialogComponent {
+  private auth = inject(AuthService);
+
   signInWithGoogle(): void {
-    console.log('Sign in with Google');
+    this.auth.signInWithGoogle();
   }
 
   signInWithMicrosoft(): void {
-    console.log('Sign in with Microsoft');
+    this.auth.signInWithMicrosoft();
   }
 
   signInWithApple(): void {
-    console.log('Sign in with Apple');
+    this.auth.signInWithApple();
   }
 }

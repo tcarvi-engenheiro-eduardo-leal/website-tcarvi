@@ -1,17 +1,17 @@
-/*!
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.dev/license
- */
+
+
 @use '@angular/material' as mat;
 
-body {
-  font-family: "Source Sans 3", serif;
-  height: 100%;
-  background-color: rgb(234, 244, 247);
+html { height: 100%; }
 
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: rgb(234, 244, 247);
   @include mat.theme((
     color: (
       theme-type: light,
@@ -23,6 +23,9 @@ body {
   ));
 }
 
-html {
-  height: 100%;
+.main-container {
+  max-width: 1200px; /* Ajuste conforme necessário */
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 80%;
 }

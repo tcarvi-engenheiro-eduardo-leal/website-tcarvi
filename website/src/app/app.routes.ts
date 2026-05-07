@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { L1Component } from './l-1/l-1.component';
+import { AgentChatComponent } from './agent-chat/agent-chat.component';
 
 export const routes: Routes = [
   {
@@ -10,5 +11,9 @@ export const routes: Routes = [
   {
     path: 'l1',
     component: L1Component
+  },
+  {
+    path: 'chat',
+    component: AgentChatComponent
   }
 ];

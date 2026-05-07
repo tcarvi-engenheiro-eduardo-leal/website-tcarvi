@@ -5,7 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.dev/license
  */
-import { Injectable, signal, resource, linkedSignal } from '@angular/core';
+import { Injectable, signal, resource, linkedSignal, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { runFlow } from 'genkit/beta/client';
 
 const USER = 'USER';
@@ -21,6 +22,7 @@ interface AgentResponse {
   providedIn: 'root'
 })
 export class AgentService {
+  private platformId = inject(PLATFORM_ID);
   userInput = signal('');
 
   // Only set this on the initial request
@@ -52,6 +54,9 @@ export class AgentService {
   agentResource = resource({
     defaultValue: { agentResponse: '', options: [] },
     loader: (): Promise<AgentResponse> => {
+      if (!isPlatformBrowser(this.platformId)) {
+        return Promise.resolve({ agentResponse: '', options: [] });
+      }
       return runFlow({ url: ENDPOINT, input: {
         userInput: this.userInput(),
         sessionId: this.sessionId(),

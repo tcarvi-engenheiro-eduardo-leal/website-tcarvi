@@ -1,29 +1,40 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { authCredentials } from '../../environments/auth-credentials';
 import type { PublicClientApplication, AuthenticationResult } from '@azure/msal-browser';
 
 export interface OAuthUser {
   provider: 'google' | 'microsoft' | 'apple';
-  email?: string;
   name?: string;
+  email?: string;
+  picture?: string;
   accessToken?: string;
   idToken?: string;
 }
 
-// Tipagens para SDKs externos carregados via <script>
-interface GoogleTokenClient {
-  requestAccessToken(): void;
+interface GoogleUserInfo {
+  name: string;
+  email: string;
+  picture: string;
 }
+
+interface AppleJwtPayload {
+  sub: string;
+  email?: string;
+}
+
 interface GoogleAccounts {
   oauth2: {
     initTokenClient(config: {
       client_id: string;
       scope: string;
-      callback: (response: { access_token?: string; error?: string }) => void;
-    }): GoogleTokenClient;
+      callback: (r: { access_token?: string; error?: string }) => void;
+    }): { requestAccessToken(): void };
   };
 }
+
 interface AppleAuthResponse {
   authorization: { code: string; id_token: string; state: string };
   user?: { name?: { firstName?: string; lastName?: string }; email?: string };
@@ -32,7 +43,11 @@ interface AppleAuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private msalInstance: PublicClientApplication | null = null;
+
+  readonly user = signal<OAuthUser | null>(null);
 
   async initialize(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -48,7 +63,6 @@ export class AuthService {
       cache: { cacheLocation: 'sessionStorage' },
     });
     await this.msalInstance.initialize();
-    // Processa redirect de volta do Microsoft (se houver)
     await this.msalInstance.handleRedirectPromise();
   }
 
@@ -70,8 +84,22 @@ export class AuthService {
             console.error('[AuthService] Google sign-in error:', response.error);
             return;
           }
-          const user: OAuthUser = { provider: 'google', accessToken: response.access_token };
-          this.onAuthSuccess(user);
+          const token = response.access_token;
+          this.http
+            .get<GoogleUserInfo>('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .subscribe({
+              next: (info) =>
+                this.onAuthSuccess({
+                  provider: 'google',
+                  name: info.name,
+                  email: info.email,
+                  picture: info.picture,
+                  accessToken: token,
+                }),
+              error: (err) => console.error('[AuthService] Erro ao buscar perfil Google:', err),
+            });
         },
       })
       .requestAccessToken();
@@ -81,22 +109,20 @@ export class AuthService {
     if (!isPlatformBrowser(this.platformId)) return;
     if (!this.msalInstance) await this.initialize();
     if (!this.msalInstance) {
-      console.error('[AuthService] MSAL não inicializado. Verifique MICROSOFT_CLIENT_ID.');
+      console.error('[AuthService] MSAL não inicializado.');
       return;
     }
-
     try {
       const result: AuthenticationResult = await this.msalInstance.loginPopup({
         scopes: ['openid', 'email', 'profile'],
       });
-      const user: OAuthUser = {
+      this.onAuthSuccess({
         provider: 'microsoft',
-        email: result.account?.username,
         name: result.account?.name ?? undefined,
+        email: result.account?.username,
         accessToken: result.accessToken,
         idToken: result.idToken,
-      };
-      this.onAuthSuccess(user);
+      });
     } catch (err) {
       console.error('[AuthService] Microsoft sign-in error:', err);
     }
@@ -105,10 +131,16 @@ export class AuthService {
   async signInWithApple(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const AppleID = (window as unknown as { AppleID?: { auth?: {
-      init(config: object): void;
-      signIn(): Promise<AppleAuthResponse>;
-    } } }).AppleID;
+    const AppleID = (
+      window as unknown as {
+        AppleID?: {
+          auth?: {
+            init(config: object): void;
+            signIn(): Promise<AppleAuthResponse>;
+          };
+        };
+      }
+    ).AppleID;
 
     if (!AppleID?.auth) {
       console.error('[AuthService] Apple Sign In JS não carregado.');
@@ -125,22 +157,37 @@ export class AuthService {
 
     try {
       const response = await AppleID.auth.signIn();
-      const user: OAuthUser = {
+      const payload = this.decodeJwtPayload(response.authorization.id_token) as unknown as AppleJwtPayload;
+      this.onAuthSuccess({
         provider: 'apple',
-        email: response.user?.email,
+        email: response.user?.email ?? payload.email,
         name: [response.user?.name?.firstName, response.user?.name?.lastName]
           .filter(Boolean)
           .join(' ') || undefined,
         idToken: response.authorization.id_token,
-      };
-      this.onAuthSuccess(user);
+      });
     } catch (err) {
       console.error('[AuthService] Apple sign-in error:', err);
     }
   }
 
+  signOut(): void {
+    this.user.set(null);
+    this.router.navigate(['/l1']);
+  }
+
   private onAuthSuccess(user: OAuthUser): void {
-    console.log(`[AuthService] Login bem-sucedido via ${user.provider}:`, user);
-    // TODO: armazenar sessão, navegar para rota protegida, etc.
+    this.user.set(user);
+    this.router.navigate(['/chat']);
+  }
+
+  private decodeJwtPayload(token: string): Record<string, unknown> {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(base64));
+    } catch {
+      return {};
+    }
   }
 }

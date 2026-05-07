@@ -11,6 +11,32 @@
 
   <aside class="settings-sidebar">
     <div class="settings-title">Configurações</div>
+
+    @let user = auth.user();
+    @if (user) {
+      <div class="user-card">
+        @if (user.picture) {
+          <img class="user-avatar" [src]="user.picture" [alt]="user.name ?? 'Avatar'" referrerpolicy="no-referrer" />
+        } @else {
+          <div class="user-avatar user-avatar--placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+        <div class="user-info">
+          @if (user.name) {
+            <span class="user-name">{{ user.name }}</span>
+          }
+          @if (user.email) {
+            <span class="user-email">{{ user.email }}</span>
+          }
+          <span class="user-provider">via {{ providerLabel(user.provider) }}</span>
+        </div>
+        <button mat-icon-button class="logout-btn" (click)="auth.signOut()" title="Sair">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    }
+
     <div class="settings-content">
       <div class="settings-section">
         <span class="settings-label">Modelo</span>

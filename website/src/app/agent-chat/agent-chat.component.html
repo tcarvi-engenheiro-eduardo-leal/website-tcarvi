@@ -15,16 +15,19 @@
                 <mat-progress-bar mode="indeterminate"></mat-progress-bar>
             </div>
         }
-        @let options = agentService.agentResource.value().options;
-        @if (options.length > 2) {
-            <div class="choices">
-                <h4>Here are some options:</h4>
-                <div>
-                    @for (option of options; track $index) {
-                        <button (click)="userInput = option">{{option}}</button>
-                    }
+        @let resourceValue = agentService.agentResource.value();
+        @if (resourceValue) {
+            @let options = resourceValue.options;
+            @if (options && options.length > 2) {
+                <div class="choices">
+                    <h4>Here are some options:</h4>
+                    <div>
+                        @for (option of options; track $index) {
+                            <button (click)="userInput = option">{{option}}</button>
+                        }
+                    </div>
                 </div>
-            </div>
+            }
         }
         @for (item of agentService.chat(); track item.id) {
             @if (item.role === 'USER') {

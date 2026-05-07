@@ -12,6 +12,11 @@ const USER = 'USER';
 const AGENT = 'AGENT';
 const ENDPOINT = '/chatFlow';
 
+interface AgentResponse {
+  agentResponse: string;
+  options: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,13 +32,13 @@ export class AgentService {
   });
 
   // Set to true on the initial request, otherwise false to preserve the session
-  clearSession = linkedSignal({
-    source: () => this.agentResource.value()?.agentResponse,
+  clearSession = linkedSignal<string, boolean>({
+    source: () => this.agentResource.value()?.agentResponse || '',
     computation: (_agentResponse, previous): boolean => !previous
   });
 
   chat = linkedSignal<string, Chat[]>({
-    source: () => this.agentResource.value().agentResponse,
+    source: () => this.agentResource.value()?.agentResponse || '',
     computation: (agentResponse, previous): Chat[] => {
       if (agentResponse === '') {
         return previous?.value || [];
@@ -46,10 +51,9 @@ export class AgentService {
 
   agentResource = resource({
     defaultValue: { agentResponse: '', options: [] },
-    request: () => this.userInput(),
-    loader: ({request}): Promise<AgentResponse> => {
+    loader: (): Promise<AgentResponse> => {
       return runFlow({ url: ENDPOINT, input: {
-        userInput: request,
+        userInput: this.userInput(),
         sessionId: this.sessionId(),
         clearSession: this.clearSession()
       }});

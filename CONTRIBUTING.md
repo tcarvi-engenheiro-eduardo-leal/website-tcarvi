@@ -42,8 +42,6 @@ ng update @angular/core @angular/cli
 npm audit fix
 ```
 
-Verifique sempre o arquivo `website/package.json` para confirmar as versões em uso antes de atualizar.
-
 ---
 
 ## 4. Backend Firebase

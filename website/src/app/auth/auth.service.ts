@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Injectable, Injector, PLATFORM_ID, inject, runInInjectionContext, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -12,6 +12,7 @@ import {
   signInWithPopup,
   signOut,
 } from '@angular/fire/auth';
+import { googleOAuthClientId } from '../../environments/firebase.config';
 
 export interface OAuthUser {
   uid: string;
@@ -26,6 +27,7 @@ export class AuthService {
   private readonly auth = inject(Auth, { optional: true });
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
 
   readonly user = signal<OAuthUser | null>(null);
 
@@ -43,7 +45,9 @@ export class AuthService {
   async signInWithGoogle(): Promise<void> {
     if (!this.auth) { console.error('[AuthService] Firebase não configurado.'); return; }
     try {
-      await signInWithPopup(this.auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ client_id: googleOAuthClientId });
+      await runInInjectionContext(this.injector, () => signInWithPopup(this.auth!, provider));
       this.router.navigate(['/chat']);
     } catch (err) {
       console.error('[AuthService] Google sign-in error:', err);
@@ -53,7 +57,7 @@ export class AuthService {
   async signInWithMicrosoft(): Promise<void> {
     if (!this.auth) { console.error('[AuthService] Firebase não configurado.'); return; }
     try {
-      await signInWithPopup(this.auth, new OAuthProvider('microsoft.com'));
+      await runInInjectionContext(this.injector, () => signInWithPopup(this.auth!, new OAuthProvider('microsoft.com')));
       this.router.navigate(['/chat']);
     } catch (err) {
       console.error('[AuthService] Microsoft sign-in error:', err);
@@ -66,7 +70,7 @@ export class AuthService {
       const provider = new OAuthProvider('apple.com');
       provider.addScope('email');
       provider.addScope('name');
-      await signInWithPopup(this.auth, provider);
+      await runInInjectionContext(this.injector, () => signInWithPopup(this.auth!, provider));
       this.router.navigate(['/chat']);
     } catch (err) {
       console.error('[AuthService] Apple sign-in error:', err);
@@ -74,7 +78,7 @@ export class AuthService {
   }
 
   async signOut(): Promise<void> {
-    if (this.auth) await signOut(this.auth);
+    if (this.auth) await runInInjectionContext(this.injector, () => signOut(this.auth!));
     this.user.set(null);
     this.router.navigate(['/l1']);
   }

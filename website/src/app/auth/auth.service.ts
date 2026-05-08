@@ -1,4 +1,4 @@
-import { Injectable, Injector, PLATFORM_ID, inject, runInInjectionContext, signal } from '@angular/core';
+import { Injectable, Injector, NgZone, PLATFORM_ID, inject, runInInjectionContext, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -7,6 +7,7 @@ import {
   OAuthProvider,
   User,
   browserSessionPersistence,
+  getRedirectResult,
   onAuthStateChanged,
   setPersistence,
   signInWithPopup,
@@ -28,6 +29,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly injector = inject(Injector);
+  private readonly ngZone = inject(NgZone);
 
   readonly user = signal<OAuthUser | null>(null);
 
@@ -35,12 +37,22 @@ export class AuthService {
     if (!isPlatformBrowser(this.platformId) || !this.auth) return;
     setPersistence(this.auth, browserSessionPersistence).then(() => {
       onAuthStateChanged(this.auth!, (firebaseUser) => {
-        this.user.set(firebaseUser ? this.mapUser(firebaseUser) : null);
+        this.ngZone.run(() => {
+          this.user.set(firebaseUser ? this.mapUser(firebaseUser) : null);
+        });
       });
     });
   }
 
-  async initialize(): Promise<void> {}
+  async initialize(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId) || !this.auth) return;
+    try {
+      // Consome qualquer estado de redirect pendente no localStorage
+      // (gerado por tentativas anteriores com signInWithRedirect).
+      // Sem isso, o auth handler abre o popup e conclui o fluxo anterior imediatamente.
+      await getRedirectResult(this.auth);
+    } catch { /* estado inválido ou expirado — ignorar */ }
+  }
 
   async signInWithGoogle(): Promise<void> {
     if (!this.auth) { console.error('[AuthService] Firebase não configurado.'); return; }

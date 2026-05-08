@@ -24,6 +24,10 @@ const version = '0.0.1'; // atualizar manualmente a cada release
 
 const app = express();
 app.use(express.json());
+app.use((_req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  next();
+});
 const angularApp = new AngularNodeAppEngine();
 
 app.get('/version', (_req, res) => {

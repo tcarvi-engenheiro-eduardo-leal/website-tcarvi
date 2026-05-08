@@ -21,6 +21,7 @@ export class C1L1Component {
   private dialog = inject(MatDialog);
 
   openLoginDialog(): void {
+    console.log('Opening login dialog');
     this.dialog.open(LoginDialogComponent, {
       width: '440px',
       maxWidth: '95vw',

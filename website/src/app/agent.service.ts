@@ -53,13 +53,13 @@ export class AgentService {
 
   agentResource = resource({
     defaultValue: { agentResponse: '', options: [] },
-    loader: (): Promise<AgentResponse> => {
+    params: () => this.userInput(),
+    loader: ({ params: userInput }): Promise<AgentResponse> => {
       if (!isPlatformBrowser(this.platformId)) {
         return Promise.resolve({ agentResponse: '', options: [] });
       }
-      const userInput = this.userInput(); // dependência reativa: dispara o loader
-      const sessionId = untracked(() => this.sessionId()); // lido sem criar dependência
-      const clearSession = untracked(() => this.clearSession()); // lido sem criar dependência
+      const sessionId = untracked(() => this.sessionId());
+      const clearSession = untracked(() => this.clearSession());
       return runFlow({ url: ENDPOINT, input: { userInput, sessionId, clearSession } });
     }
   });

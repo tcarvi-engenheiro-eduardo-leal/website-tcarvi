@@ -1,0 +1,8 @@
+# Firebase App Hosting — configuração de runtime para Angular SSR
+# Docs: https://firebase.google.com/docs/app-hosting/configure
+runConfig:
+  minInstances: 0   # escala para zero sem tráfego (custo zero idle)
+  maxInstances: 2
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512

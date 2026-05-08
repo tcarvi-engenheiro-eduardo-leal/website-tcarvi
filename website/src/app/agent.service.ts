@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.dev/license
  */
-import { Injectable, signal, resource, linkedSignal, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, signal, resource, linkedSignal, inject, PLATFORM_ID, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { runFlow } from 'genkit/beta/client';
 
@@ -57,11 +57,10 @@ export class AgentService {
       if (!isPlatformBrowser(this.platformId)) {
         return Promise.resolve({ agentResponse: '', options: [] });
       }
-      return runFlow({ url: ENDPOINT, input: {
-        userInput: this.userInput(),
-        sessionId: this.sessionId(),
-        clearSession: this.clearSession()
-      }});
+      const userInput = this.userInput(); // dependência reativa: dispara o loader
+      const sessionId = untracked(() => this.sessionId()); // lido sem criar dependência
+      const clearSession = untracked(() => this.clearSession()); // lido sem criar dependência
+      return runFlow({ url: ENDPOINT, input: { userInput, sessionId, clearSession } });
     }
   });
 

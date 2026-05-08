@@ -153,6 +153,19 @@
     padding: 40px 15%;
   }
 
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    margin: 8px;
+    border-radius: 8px;
+    background-color: #fdecea;
+    color: #b00020;
+    font-size: 14px;
+    border: 1px solid #f5c6cb;
+  }
+
   .history-body {
     display: flex;
     padding: 5px 8px;

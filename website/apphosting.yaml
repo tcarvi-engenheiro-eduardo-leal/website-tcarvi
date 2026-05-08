@@ -8,5 +8,5 @@ runConfig:
   memoryMiB: 512
 
 env:
-  - variable: GOOGLE_API_KEY
-    secret: GOOGLE_API_KEY   # valor armazenado no Secret Manager; veja CONTRIBUTING.md §4.6
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY   # valor armazenado no Secret Manager; veja CONTRIBUTING.md §4.6

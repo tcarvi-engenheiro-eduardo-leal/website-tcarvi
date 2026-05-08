@@ -53,11 +53,8 @@ export class AgentService {
 
   agentResource = resource({
     defaultValue: { agentResponse: '', options: [] },
-    params: () => this.userInput(),
+    params: () => isPlatformBrowser(this.platformId) ? this.userInput() : undefined,
     loader: ({ params: userInput }): Promise<AgentResponse> => {
-      if (!isPlatformBrowser(this.platformId)) {
-        return Promise.resolve({ agentResponse: '', options: [] });
-      }
       const sessionId = untracked(() => this.sessionId());
       const clearSession = untracked(() => this.clearSession());
       return runFlow({ url: ENDPOINT, input: { userInput, sessionId, clearSession } });

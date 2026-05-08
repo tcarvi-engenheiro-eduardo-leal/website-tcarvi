@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
-import { CommonModule } from '@angular/common';
+
 import {MatCardModule} from '@angular/material/card';
 
 @Component({

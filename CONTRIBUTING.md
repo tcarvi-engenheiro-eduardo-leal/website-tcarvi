@@ -1,11 +1,11 @@
-# Guia de Contribuição (CONTRIBUTING)
+# Guia de Contribuição
 
 Este guia descreve como configurar o ambiente de desenvolvimento para contribuir com o projeto `website-tcarvi.com.br`.
 
 ## 1. Pré-requisitos
 
-- Node.js (versão 22 LTS recomendada)
-- Angular CLI (v20 ou superior)
+- Node.js (versão 22.22.2 ou superior)
+- Angular CLI (v21.2.10 ou superior)
 
 ## 2. Clone do Repositório
 
@@ -20,14 +20,14 @@ O frontend é uma aplicação Angular com SSR localizada no diretório `website/
 ```bash
 cd website
 npm install
-npm start   # escuta em http://localhost:4200
+ng serve  # escuta em http://localhost:4200
 ```
 
 ### 2.2 Build do Frontend
 
 ```bash
 cd website
-npm run build
+ng build
 ```
 
 Os artefatos gerados ficam em `website/dist/`.

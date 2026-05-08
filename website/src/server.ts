@@ -12,6 +12,7 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expressHandler } from '@genkit-ai/express';
@@ -20,9 +21,19 @@ import { chatFlow } from './flows';
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
+// Lê a versão do package.json em tempo de inicialização.
+// Em produção, server.mjs fica em dist/app/server/, logo ../../../ aponta para a raiz do workspace.
+const { version } = JSON.parse(
+  readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8')
+) as { version: string };
+
 const app = express();
 app.use(express.json());
 const angularApp = new AngularNodeAppEngine();
+
+app.get('/version', (_req, res) => {
+  res.json({ version });
+});
 
 /**
  * Define an endpoint to call a flow.

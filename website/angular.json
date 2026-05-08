@@ -72,7 +72,8 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "polyfills": ["zone.js", "zone.js/plugins/task-tracking"]
             }
           },
           "defaultConfiguration": "production"
